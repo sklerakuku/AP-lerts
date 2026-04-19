@@ -3,28 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AP-lerts - SPMTV</title>
+    <title>AP-lerts - Minecraft Style</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
-        
+        @font-face {
+            font-family: 'Minecraft';
+            src: url('https://db.onlinewebfonts.com/t/6ab539c6fc2b21ff0b149b3d06d7f97c.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --color-bg: #1a1a1a;
+            --color-bg-panel: #222222;
+            --color-bg-element: #2a2a2a;
+            --color-bg-hover: #333333;
+            --color-border: #444444;
+            --color-border-light: #555555;
+            --color-text: #e0e0e0;
+            --color-text-muted: #888888;
+            --color-text-dim: #666666;
+            --color-purple: #bf49d6;
+            --color-purple-dark: #a248b4;
+            --color-success: #43b581;
+            --color-error: #f04747;
+            --color-gold: #ffaa00;
+            --color-gold-dark: #cc8800;
+            --pixel-shadow-dark: rgba(0, 0, 0, 0.45);
+            --pixel-highlight: rgba(255, 255, 255, 0.18);
+            --font-mc: 'Minecraft', 'Courier New', monospace;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         body {
-            margin: 0;
-            padding: 0;
+            font-family: var(--font-mc);
+            background-color: transparent !important;
+            color: var(--color-text);
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: none;
+            image-rendering: pixelated;
             overflow: hidden;
-            font-family: 'Montserrat', sans-serif;
-            background: transparent !important;
         }
 
         #donation-container {
             position: fixed;
-            bottom: 50px;
-            left: 50px;
+            bottom: 30px;
+            left: 30px;
             display: flex;
             flex-direction: column;
             gap: 15px;
@@ -32,21 +64,23 @@
             z-index: 9999;
         }
 
+        /* Minecraft-style panel */
         .donation-alert {
             position: relative;
-            width: 480px;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-            border-left: 8px solid #ffd700;
+            width: 420px;
+            background: var(--color-bg-panel);
+            border: 3px solid var(--color-border);
+            box-shadow: 
+                inset 2px 2px 0 0 var(--pixel-highlight),
+                inset -2px -2px 0 0 var(--pixel-shadow-dark),
+                4px 4px 0 0 rgba(0, 0, 0, 0.3);
+            padding: 16px;
             transform: translateX(-100%);
             opacity: 0;
-            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transition: all 0.4s steps(10);
             pointer-events: none;
-            color: white;
-            backdrop-filter: blur(10px);
-            animation: glow 3s infinite;
+            color: var(--color-text);
+            image-rendering: pixelated;
         }
 
         .donation-alert.show {
@@ -59,107 +93,164 @@
             opacity: 0;
         }
 
+        /* Header с аватаром и ником */
         .alert-header {
             display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--color-border);
         }
 
-        .alert-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #ffd700, #ff8c00);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            animation: pulse 2s infinite;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        .avatar-wrapper {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            flex-shrink: 0;
         }
 
-        .alert-info {
+        .minecraft-avatar {
+            width: 48px;
+            height: 48px;
+            border: 2px solid var(--color-border);
+            box-shadow: 
+                inset 1px 1px 0 0 var(--pixel-highlight),
+                inset -1px -1px 0 0 var(--pixel-shadow-dark);
+            image-rendering: pixelated;
+            display: block;
+            background: var(--color-bg-element);
+        }
+
+        .avatar-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05) 0px,
+                rgba(0, 0, 0, 0.05) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+        }
+
+        .user-info {
             flex: 1;
+            min-width: 0;
         }
 
         .username {
-            font-size: 24px;
-            font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            font-size: 18px;
+            font-weight: normal;
+            color: var(--color-text);
+            text-shadow: 2px 2px 0 var(--color-bg);
+            letter-spacing: 0.5px;
             word-break: break-word;
+            margin-bottom: 4px;
+            text-transform: none;
         }
 
-        .amount-container {
+        .amount-wrapper {
             display: flex;
             align-items: baseline;
-            gap: 8px;
-            margin-top: 8px;
+            gap: 6px;
+            background: var(--color-bg);
+            padding: 4px 8px;
+            border: 2px solid var(--color-border);
+            box-shadow: inset 1px 1px 0 0 var(--pixel-shadow-dark);
+            display: inline-block;
         }
 
         .amount {
-            font-size: 42px;
-            font-weight: 800;
-            color: #ffd700;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
-            letter-spacing: 1px;
+            font-size: 20px;
+            color: var(--color-gold);
+            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.5px;
         }
 
         .currency {
-            font-size: 24px;
-            color: #ffd700;
-            opacity: 0.9;
+            font-size: 14px;
+            color: var(--color-gold-dark);
+            margin-left: 4px;
         }
 
+        /* КОММЕНТАРИЙ - САМОЕ ГЛАВНОЕ */
         .comment {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.15);
             font-size: 16px;
-            color: #e0e0e0;
-            line-height: 1.5;
+            color: var(--color-text);
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            box-shadow: 
+                inset 2px 2px 0 0 var(--pixel-shadow-dark),
+                inset -1px -1px 0 0 var(--pixel-highlight);
+            padding: 12px;
+            margin-top: 12px;
+            line-height: 1.4;
             word-break: break-word;
-            max-height: 100px;
+            min-height: 60px;
+            max-height: 150px;
             overflow-y: auto;
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
+            font-style: normal;
+            letter-spacing: 0.3px;
         }
 
         .comment:empty {
             display: none;
         }
 
+        .comment::before {
+            content: "❝";
+            font-size: 24px;
+            color: var(--color-purple);
+            margin-right: 6px;
+            opacity: 0.7;
+        }
+
+        .comment::after {
+            content: "❞";
+            font-size: 24px;
+            color: var(--color-purple);
+            margin-left: 6px;
+            opacity: 0.7;
+            vertical-align: top;
+        }
+
+        /* Прогресс-бар в стиле Minecraft */
         .progress-bar {
             position: absolute;
-            bottom: 0;
-            left: 0;
+            bottom: -3px;
+            left: -3px;
+            right: -3px;
             height: 4px;
-            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
-            border-radius: 0 0 0 20px;
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            box-shadow: inset 0 0 0 1px var(--pixel-shadow-dark);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                var(--color-purple) 0px,
+                var(--color-purple) 6px,
+                var(--color-purple-dark) 6px,
+                var(--color-purple-dark) 12px
+            );
             width: 100%;
             transform-origin: left;
             animation: shrink 10s linear forwards;
+            box-shadow: inset 0 1px 0 0 var(--pixel-highlight);
         }
 
-        /* Анимации */
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
-
-        @keyframes shrink {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
-        }
-
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3); }
-            50% { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.5); }
-        }
-
-        /* Настройки позиционирования */
-        #donation-container.top-left { top: 50px; left: 50px; bottom: auto; }
-        #donation-container.top-right { top: 50px; right: 50px; left: auto; bottom: auto; }
-        #donation-container.bottom-right { bottom: 50px; right: 50px; left: auto; }
+        /* Позиционирование */
+        #donation-container.top-left { top: 30px; left: 30px; bottom: auto; }
+        #donation-container.top-right { top: 30px; right: 30px; left: auto; bottom: auto; }
+        #donation-container.bottom-right { bottom: 30px; right: 30px; left: auto; }
         #donation-container.center { 
             top: 50%; left: 50%; 
             transform: translate(-50%, -50%); 
@@ -182,7 +273,7 @@
         }
 
         #donation-container.center .donation-alert {
-            transform: scale(0.8);
+            transform: scale(0.9);
             opacity: 0;
         }
 
@@ -192,62 +283,72 @@
         }
 
         #donation-container.center .donation-alert.hide {
-            transform: scale(0.8);
+            transform: scale(0.9);
             opacity: 0;
         }
 
         /* Индикатор соединения */
         #connection-status {
             position: fixed;
-            top: 15px;
-            right: 15px;
-            padding: 8px 15px;
-            border-radius: 30px;
-            font-size: 13px;
-            font-weight: 600;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
+            top: 10px;
+            right: 10px;
+            padding: 6px 10px;
+            font-family: var(--font-mc);
+            font-size: 12px;
+            background: var(--color-bg-panel);
+            color: var(--color-text);
+            border: 2px solid var(--color-border);
+            box-shadow: inset 1px 1px 0 0 var(--pixel-highlight);
             pointer-events: none;
             z-index: 10000;
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
         }
 
         #connection-status.connected {
-            background: rgba(76, 175, 80, 0.3);
-            border-color: rgba(76, 175, 80, 0.5);
+            border-color: var(--color-success);
+            color: var(--color-success);
         }
 
         #connection-status.disconnected {
-            background: rgba(244, 67, 54, 0.3);
-            border-color: rgba(244, 67, 54, 0.5);
+            border-color: var(--color-error);
+            color: var(--color-error);
         }
 
         #connection-status.reconnecting {
-            background: rgba(255, 152, 0, 0.3);
-            border-color: rgba(255, 152, 0, 0.5);
+            border-color: var(--color-gold);
+            color: var(--color-gold);
         }
 
-        /* Стилизация скроллбара */
+        /* Анимации */
+        @keyframes shrink {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        /* Скроллбар */
         .comment::-webkit-scrollbar {
-            width: 4px;
+            width: 8px;
         }
 
         .comment::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 2px;
+            background: var(--color-bg);
+            border: 1px solid var(--color-border);
         }
 
         .comment::-webkit-scrollbar-thumb {
-            background: rgba(255, 215, 0, 0.3);
-            border-radius: 2px;
+            background: var(--color-border-light);
+            border: 1px solid var(--color-border);
+        }
+
+        .comment::-webkit-scrollbar-thumb:hover {
+            background: var(--color-text-dim);
         }
     </style>
 </head>
 <body>
     <div id="connection-status" class="disconnected">
         <span id="status-text">Подключение...</span>
-        <span id="connection-count" style="margin-left: 5px;"></span>
+        <span id="connection-count" style="margin-left: 8px;"></span>
     </div>
 
     <div id="donation-container" class="bottom-left"></div>
@@ -263,11 +364,9 @@
                 minAmount: parseInt(urlParams.get('minAmount')) || 0,
                 maxAlerts: parseInt(urlParams.get('maxAlerts')) || 5,
                 showStatus: urlParams.get('showStatus') !== 'false',
-                animation: urlParams.get('animation') || 'slide',
                 server: 'https://spmtv.onrender.com'
             };
             
-            // Подключение к Socket.io
             const socket = io(config.server, {
                 transports: ['websocket', 'polling'],
                 reconnection: true,
@@ -282,63 +381,58 @@
             const statusText = document.getElementById('status-text');
             const connectionCount = document.getElementById('connection-count');
             
-            // Применяем позицию
             container.className = config.position;
             
-            // Управление статусом подключения
             if (!config.showStatus) {
                 statusDiv.style.display = 'none';
             }
             
-            // Обработчики событий Socket.io
-            socket.on('connect', () => {
-                console.log('✅ Подключено к серверу SPMTV');
-                statusText.textContent = '✅ Подключено';
-                statusDiv.className = 'connected';
+            // Загрузка аватара Minecraft
+            async function loadMinecraftAvatar(username, uuid) {
+                const cleanUuid = uuid ? uuid.replace(/-/g, '') : null;
                 
-                // Отправляем пинг для поддержания соединения
-                setInterval(() => {
-                    if (socket.connected) {
-                        socket.emit('ping');
+                const services = [
+                    { url: cleanUuid ? `https://mc-heads.net/avatar/${cleanUuid}/64` : null, name: 'MC-Heads' },
+                    { url: cleanUuid ? `https://minotar.net/avatar/${cleanUuid}/64` : null, name: 'Minotar' },
+                    { url: cleanUuid ? `https://crafatar.com/avatars/${cleanUuid}?size=64&overlay` : null, name: 'Crafatar' }
+                ].filter(s => s.url !== null);
+                
+                if (!cleanUuid) {
+                    try {
+                        const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+                        if (mojangRes.ok) {
+                            const mojangData = await mojangRes.json();
+                            if (mojangData.id) {
+                                return await loadMinecraftAvatar(username, mojangData.id);
+                            }
+                        }
+                    } catch (e) {
+                        console.warn('⚠️ Не удалось получить UUID:', e);
                     }
-                }, 20000);
-            });
+                    return 'https://mc-heads.net/avatar/MHF_Question/64';
+                }
+                
+                for (const service of services) {
+                    try {
+                        await new Promise((resolve, reject) => {
+                            const img = new Image();
+                            img.onload = () => resolve();
+                            img.onerror = () => reject();
+                            img.src = service.url;
+                            setTimeout(() => reject(new Error('Timeout')), 3000);
+                        });
+                        return service.url;
+                    } catch (error) {
+                        console.warn(`⚠️ Сервис ${service.name} недоступен`);
+                    }
+                }
+                
+                return 'https://mc-heads.net/avatar/MHF_Question/64';
+            }
             
-            socket.on('welcome', (data) => {
-                console.log('📡 Приветственное сообщение:', data);
-            });
-            
-            socket.on('disconnect', (reason) => {
-                console.log('❌ Отключено от сервера:', reason);
-                statusText.textContent = '❌ Отключено';
-                statusDiv.className = 'disconnected';
-            });
-            
-            socket.on('reconnecting', (attempt) => {
-                console.log('🔄 Переподключение... Попытка', attempt);
-                statusText.textContent = `🔄 Переподключение ${attempt}...`;
-                statusDiv.className = 'reconnecting';
-            });
-            
-            socket.on('reconnect', () => {
-                console.log('✅ Переподключено успешно');
-                statusText.textContent = '✅ Подключено';
-                statusDiv.className = 'connected';
-            });
-            
-            socket.on('connect_error', (error) => {
-                console.error('❌ Ошибка подключения:', error);
-                statusText.textContent = '⚠️ Ошибка подключения';
-                statusDiv.className = 'disconnected';
-            });
-            
-            socket.on('pong', (data) => {
-                console.log('🏓 Понг получен, соединение активно');
-            });
-            
-            // Форматирование чисел
+            // Форматирование суммы с тремя знаками после запятой
             function formatAmount(amount) {
-                return new Intl.NumberFormat('ru-RU').format(amount);
+                return amount.toFixed(3);
             }
             
             // Экранирование HTML
@@ -349,20 +443,10 @@
                 return div.innerHTML;
             }
             
-            // Обновление счетчика подключений
-            function updateConnectionCount(count) {
-                if (count > 0) {
-                    connectionCount.textContent = `👥 ${count}`;
-                } else {
-                    connectionCount.textContent = '';
-                }
-            }
-            
             // Создание алерта
-            function createAlert(data) {
-                // Проверяем минимальную сумму
+            async function createAlert(data) {
                 if (data.amount < config.minAmount) {
-                    console.log(`ℹ️ Донат ${data.amount} АР пропущен (мин. сумма: ${config.minAmount})`);
+                    console.log(`ℹ️ Донат ${data.amount} АР пропущен (мин: ${config.minAmount})`);
                     return false;
                 }
                 
@@ -373,33 +457,33 @@
                 const safeUsername = escapeHtml(data.username);
                 const safeComment = escapeHtml(data.comment);
                 
-                // Выбор иконки в зависимости от суммы
-                let icon = '💰';
-                if (data.amount >= 1000) icon = '💎';
-                else if (data.amount >= 500) icon = '🏆';
-                else if (data.amount >= 100) icon = '⭐';
+                // Загружаем аватар
+                const avatarUrl = await loadMinecraftAvatar(data.username, data.uuid || null);
                 
                 alertDiv.innerHTML = `
                     <div class="alert-header">
-                        <div class="alert-icon">${icon}</div>
-                        <div class="alert-info">
+                        <div class="avatar-wrapper">
+                            <img class="minecraft-avatar" src="${avatarUrl}" alt="${safeUsername}" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/64'">
+                            <div class="avatar-overlay"></div>
+                        </div>
+                        <div class="user-info">
                             <div class="username">${safeUsername}</div>
-                            <div class="amount-container">
+                            <div class="amount-wrapper">
                                 <span class="amount">${formattedAmount}</span>
                                 <span class="currency">АР</span>
                             </div>
                         </div>
                     </div>
                     ${data.comment ? `<div class="comment">${safeComment}</div>` : ''}
-                    <div class="progress-bar"></div>
+                    <div class="progress-bar">
+                        <div class="progress-fill"></div>
+                    </div>
                 `;
                 
                 container.insertBefore(alertDiv, container.firstChild);
                 
-                // Анимация появления
                 setTimeout(() => alertDiv.classList.add('show'), 10);
                 
-                // Автоматическое скрытие
                 setTimeout(() => {
                     alertDiv.classList.remove('show');
                     alertDiv.classList.add('hide');
@@ -408,10 +492,9 @@
                         if (alertDiv.parentNode) {
                             alertDiv.parentNode.removeChild(alertDiv);
                         }
-                    }, 600);
+                    }, 400);
                 }, config.duration);
                 
-                // Ограничиваем количество алертов
                 while (container.children.length > config.maxAlerts) {
                     const lastAlert = container.lastChild;
                     lastAlert.classList.remove('show');
@@ -420,48 +503,69 @@
                         if (lastAlert.parentNode) {
                             lastAlert.parentNode.removeChild(lastAlert);
                         }
-                    }, 600);
+                    }, 400);
                 }
                 
                 return true;
             }
             
-            // Обработка новых донатов
-            socket.on('new_donation', (data) => {
-                console.log('🎉 Получен донат:', data);
+            // Socket обработчики
+            socket.on('connect', () => {
+                console.log('✅ Подключено к серверу');
+                statusText.textContent = '✅ Подключено';
+                statusDiv.className = 'connected';
                 
-                const shown = createAlert(data);
+                setInterval(() => {
+                    if (socket.connected) socket.emit('ping');
+                }, 20000);
+            });
+            
+            socket.on('disconnect', (reason) => {
+                console.log('❌ Отключено:', reason);
+                statusText.textContent = '❌ Отключено';
+                statusDiv.className = 'disconnected';
+            });
+            
+            socket.on('reconnecting', (attempt) => {
+                statusText.textContent = `⟳ Подключение ${attempt}...`;
+                statusDiv.className = 'reconnecting';
+            });
+            
+            socket.on('reconnect', () => {
+                statusText.textContent = '✅ Подключено';
+                statusDiv.className = 'connected';
+            });
+            
+            socket.on('connect_error', (error) => {
+                console.error('❌ Ошибка:', error);
+                statusText.textContent = '⚠️ Ошибка';
+                statusDiv.className = 'disconnected';
+            });
+            
+            // Обработка донатов
+            socket.on('new_donation', async (data) => {
+                console.log('🎉 Донат:', data);
+                const shown = await createAlert(data);
                 if (shown) {
-                    console.log(`✅ Донат ${data.amount} АР от ${data.username} показан`);
+                    console.log(`✅ ${data.amount} АР от ${data.username}`);
                 }
             });
             
-            // Тестовый донат (для отладки)
-            window.testDonation = function(amount = 500, username = "Тест_Игрок") {
-                createAlert({
+            // Тестовый донат
+            window.testDonation = async function(amount = 500, username = "TestPlayer") {
+                await createAlert({
                     id: 'test_' + Date.now(),
                     username: username,
                     amount: amount,
-                    comment: "Тестовый донат! Спасибо за стрим! 🎮",
+                    comment: "Тестовое сообщение! Спасибо за стрим!",
                     type: "incoming",
                     createdAt: new Date().toISOString()
                 });
                 console.log('🧪 Тестовый донат создан');
             };
             
-            // Статистика в консоли
-            console.log('🎮 Виджет донатов SPWorlds загружен');
-            console.log('🌐 Сервер:', config.server);
-            console.log('⚙️ Настройки:', config);
-            console.log('💡 Для теста введите в консоли: testDonation(сумма, "ник")');
-            console.log('📊 Текущий URL:', window.location.href);
-            
-            // Периодическая проверка соединения
-            setInterval(() => {
-                if (socket.connected) {
-                    console.log('📡 Соединение активно, ID:', socket.id);
-                }
-            }, 60000);
+            console.log('🎮 AP-lerts Minecraft Edition загружен');
+            console.log('💡 Тест: testDonation(сумма, "ник")');
         })();
     </script>
 </body>
