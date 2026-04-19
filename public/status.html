@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPMTV Donation Server - Статус</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .info-grid {
+            display: grid;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .url-box {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .url-box code {
+            display: block;
+            background: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .refresh {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 SPMTV Donation Server</h1>
+        <div class="status-badge" id="status-badge">🟢 Онлайн</div>
+        
+        <div class="info-grid">
+            <div class="info-item">
+                <span class="info-label">Сервер:</span>
+                <span class="info-value">spmtv.onrender.com</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Статус:</span>
+                <span class="info-value" id="server-status">Загрузка...</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Подключений:</span>
+                <span class="info-value" id="connections">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Время работы:</span>
+                <span class="info-value" id="uptime">-</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Последнее обновление:</span>
+                <span class="info-value" id="last-update">-</span>
+            </div>
+        </div>
+        
+        <div class="url-box">
+            <strong>📡 Webhook URL для SPWorlds:</strong>
+            <code>https://spmtv.onrender.com/webhook</code>
+        </div>
+        
+        <div class="url-box">
+            <strong>🎬 URL для OBS:</strong>
+            <code>https://spmtv.onrender.com?position=bottom-left&duration=10000</code>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" class="button">📺 Открыть виджет</a>
+            <a href="/test-donation?key=test123" class="button" style="margin-left: 10px;">🧪 Тестовый донат</a>
+        </div>
+        
+        <div class="refresh">
+            Страница обновляется автоматически каждые 30 секунд
+        </div>
+    </div>
+    
+    <script>
+        async function updateStatus() {
+            try {
+                const response = await fetch('/status');
+                const data = await response.json();
+                
+                document.getElementById('server-status').textContent = data.status === 'online' ? '🟢 Онлайн' : '🔴 Офлайн';
+                document.getElementById('connections').textContent = data.connections;
+                document.getElementById('uptime').textContent = Math.floor(data.uptime / 60) + ' мин';
+                document.getElementById('last-update').textContent = new Date(data.timestamp).toLocaleString('ru-RU');
+            } catch (error) {
+                console.error('Ошибка получения статуса:', error);
+                document.getElementById('server-status').textContent = '❌ Ошибка';
+            }
+        }
+        
+        updateStatus();
+        setInterval(updateStatus, 30000);
+    </script>
+</body>
+</html>

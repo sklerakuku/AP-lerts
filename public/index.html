@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP-lerts - SPMTV</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: transparent !important;
+        }
+
+        #donation-container {
+            position: fixed;
+            bottom: 50px;
+            left: 50px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .donation-alert {
+            position: relative;
+            width: 480px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            border-left: 8px solid #ffd700;
+            transform: translateX(-100%);
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            pointer-events: none;
+            color: white;
+            backdrop-filter: blur(10px);
+            animation: glow 3s infinite;
+        }
+
+        .donation-alert.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .donation-alert.hide {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+
+        .alert-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .alert-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            animation: pulse 2s infinite;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .alert-info {
+            flex: 1;
+        }
+
+        .username {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            word-break: break-word;
+        }
+
+        .amount-container {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .amount {
+            font-size: 42px;
+            font-weight: 800;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+            letter-spacing: 1px;
+        }
+
+        .currency {
+            font-size: 24px;
+            color: #ffd700;
+            opacity: 0.9;
+        }
+
+        .comment {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 16px;
+            color: #e0e0e0;
+            line-height: 1.5;
+            word-break: break-word;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .comment:empty {
+            display: none;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd700, #ff8c00, #ffd700);
+            border-radius: 0 0 0 20px;
+            width: 100%;
+            transform-origin: left;
+            animation: shrink 10s linear forwards;
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+
+        @keyframes shrink {
+            from { transform: scaleX(1); }
+            to { transform: scaleX(0); }
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 40px rgba(255, 215, 0, 0.5); }
+        }
+
+        /* Настройки позиционирования */
+        #donation-container.top-left { top: 50px; left: 50px; bottom: auto; }
+        #donation-container.top-right { top: 50px; right: 50px; left: auto; bottom: auto; }
+        #donation-container.bottom-right { bottom: 50px; right: 50px; left: auto; }
+        #donation-container.center { 
+            top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            bottom: auto; 
+        }
+
+        #donation-container.top-right .donation-alert,
+        #donation-container.bottom-right .donation-alert {
+            transform: translateX(100%);
+        }
+
+        #donation-container.top-right .donation-alert.show,
+        #donation-container.bottom-right .donation-alert.show {
+            transform: translateX(0);
+        }
+
+        #donation-container.top-right .donation-alert.hide,
+        #donation-container.bottom-right .donation-alert.hide {
+            transform: translateX(100%);
+        }
+
+        #donation-container.center .donation-alert {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        #donation-container.center .donation-alert.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        #donation-container.center .donation-alert.hide {
+            transform: scale(0.8);
+            opacity: 0;
+        }
+
+        /* Индикатор соединения */
+        #connection-status {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 8px 15px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            pointer-events: none;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #connection-status.connected {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+
+        #connection-status.disconnected {
+            background: rgba(244, 67, 54, 0.3);
+            border-color: rgba(244, 67, 54, 0.5);
+        }
+
+        #connection-status.reconnecting {
+            background: rgba(255, 152, 0, 0.3);
+            border-color: rgba(255, 152, 0, 0.5);
+        }
+
+        /* Стилизация скроллбара */
+        .comment::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .comment::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+        }
+
+        .comment::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="connection-status" class="disconnected">
+        <span id="status-text">Подключение...</span>
+        <span id="connection-count" style="margin-left: 5px;"></span>
+    </div>
+
+    <div id="donation-container" class="bottom-left"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        (function() {
+            // Настройки из URL параметров
+            const urlParams = new URLSearchParams(window.location.search);
+            const config = {
+                position: urlParams.get('position') || 'bottom-left',
+                duration: parseInt(urlParams.get('duration')) || 10000,
+                minAmount: parseInt(urlParams.get('minAmount')) || 0,
+                maxAlerts: parseInt(urlParams.get('maxAlerts')) || 5,
+                showStatus: urlParams.get('showStatus') !== 'false',
+                animation: urlParams.get('animation') || 'slide',
+                server: 'https://spmtv.onrender.com'
+            };
+            
+            // Подключение к Socket.io
+            const socket = io(config.server, {
+                transports: ['websocket', 'polling'],
+                reconnection: true,
+                reconnectionAttempts: Infinity,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                timeout: 20000
+            });
+            
+            const container = document.getElementById('donation-container');
+            const statusDiv = document.getElementById('connection-status');
+            const statusText = document.getElementById('status-text');
+            const connectionCount = document.getElementById('connection-count');
+            
+            // Применяем позицию
+            container.className = config.position;
+            
+            // Управление статусом подключения
+            if (!config.showStatus) {
+                statusDiv.style.display = 'none';
+            }
+            
+            // Обработчики событий Socket.io
+            socket.on('connect', () => {
+                console.log('✅ Подключено к серверу SPMTV');
+                statusText.textContent = '✅ Подключено';
+                statusDiv.className = 'connected';
+                
+                // Отправляем пинг для поддержания соединения
+                setInterval(() => {
+                    if (socket.connected) {
+                        socket.emit('ping');
+                    }
+                }, 20000);
+            });
+            
+            socket.on('welcome', (data) => {
+                console.log('📡 Приветственное сообщение:', data);
+            });
+            
+            socket.on('disconnect', (reason) => {
+                console.log('❌ Отключено от сервера:', reason);
+                statusText.textContent = '❌ Отключено';
+                statusDiv.className = 'disconnected';
+            });
+            
+            socket.on('reconnecting', (attempt) => {
+                console.log('🔄 Переподключение... Попытка', attempt);
+                statusText.textContent = `🔄 Переподключение ${attempt}...`;
+                statusDiv.className = 'reconnecting';
+            });
+            
+            socket.on('reconnect', () => {
+                console.log('✅ Переподключено успешно');
+                statusText.textContent = '✅ Подключено';
+                statusDiv.className = 'connected';
+            });
+            
+            socket.on('connect_error', (error) => {
+                console.error('❌ Ошибка подключения:', error);
+                statusText.textContent = '⚠️ Ошибка подключения';
+                statusDiv.className = 'disconnected';
+            });
+            
+            socket.on('pong', (data) => {
+                console.log('🏓 Понг получен, соединение активно');
+            });
+            
+            // Форматирование чисел
+            function formatAmount(amount) {
+                return new Intl.NumberFormat('ru-RU').format(amount);
+            }
+            
+            // Экранирование HTML
+            function escapeHtml(text) {
+                if (!text) return '';
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            // Обновление счетчика подключений
+            function updateConnectionCount(count) {
+                if (count > 0) {
+                    connectionCount.textContent = `👥 ${count}`;
+                } else {
+                    connectionCount.textContent = '';
+                }
+            }
+            
+            // Создание алерта
+            function createAlert(data) {
+                // Проверяем минимальную сумму
+                if (data.amount < config.minAmount) {
+                    console.log(`ℹ️ Донат ${data.amount} АР пропущен (мин. сумма: ${config.minAmount})`);
+                    return false;
+                }
+                
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'donation-alert';
+                
+                const formattedAmount = formatAmount(data.amount);
+                const safeUsername = escapeHtml(data.username);
+                const safeComment = escapeHtml(data.comment);
+                
+                // Выбор иконки в зависимости от суммы
+                let icon = '💰';
+                if (data.amount >= 1000) icon = '💎';
+                else if (data.amount >= 500) icon = '🏆';
+                else if (data.amount >= 100) icon = '⭐';
+                
+                alertDiv.innerHTML = `
+                    <div class="alert-header">
+                        <div class="alert-icon">${icon}</div>
+                        <div class="alert-info">
+                            <div class="username">${safeUsername}</div>
+                            <div class="amount-container">
+                                <span class="amount">${formattedAmount}</span>
+                                <span class="currency">АР</span>
+                            </div>
+                        </div>
+                    </div>
+                    ${data.comment ? `<div class="comment">${safeComment}</div>` : ''}
+                    <div class="progress-bar"></div>
+                `;
+                
+                container.insertBefore(alertDiv, container.firstChild);
+                
+                // Анимация появления
+                setTimeout(() => alertDiv.classList.add('show'), 10);
+                
+                // Автоматическое скрытие
+                setTimeout(() => {
+                    alertDiv.classList.remove('show');
+                    alertDiv.classList.add('hide');
+                    
+                    setTimeout(() => {
+                        if (alertDiv.parentNode) {
+                            alertDiv.parentNode.removeChild(alertDiv);
+                        }
+                    }, 600);
+                }, config.duration);
+                
+                // Ограничиваем количество алертов
+                while (container.children.length > config.maxAlerts) {
+                    const lastAlert = container.lastChild;
+                    lastAlert.classList.remove('show');
+                    lastAlert.classList.add('hide');
+                    setTimeout(() => {
+                        if (lastAlert.parentNode) {
+                            lastAlert.parentNode.removeChild(lastAlert);
+                        }
+                    }, 600);
+                }
+                
+                return true;
+            }
+            
+            // Обработка новых донатов
+            socket.on('new_donation', (data) => {
+                console.log('🎉 Получен донат:', data);
+                
+                const shown = createAlert(data);
+                if (shown) {
+                    console.log(`✅ Донат ${data.amount} АР от ${data.username} показан`);
+                }
+            });
+            
+            // Тестовый донат (для отладки)
+            window.testDonation = function(amount = 500, username = "Тест_Игрок") {
+                createAlert({
+                    id: 'test_' + Date.now(),
+                    username: username,
+                    amount: amount,
+                    comment: "Тестовый донат! Спасибо за стрим! 🎮",
+                    type: "incoming",
+                    createdAt: new Date().toISOString()
+                });
+                console.log('🧪 Тестовый донат создан');
+            };
+            
+            // Статистика в консоли
+            console.log('🎮 Виджет донатов SPWorlds загружен');
+            console.log('🌐 Сервер:', config.server);
+            console.log('⚙️ Настройки:', config);
+            console.log('💡 Для теста введите в консоли: testDonation(сумма, "ник")');
+            console.log('📊 Текущий URL:', window.location.href);
+            
+            // Периодическая проверка соединения
+            setInterval(() => {
+                if (socket.connected) {
+                    console.log('📡 Соединение активно, ID:', socket.id);
+                }
+            }, 60000);
+        })();
+    </script>
+</body>
+</html>
