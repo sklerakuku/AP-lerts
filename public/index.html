@@ -7,49 +7,25 @@
     <style>
         @font-face {
             font-family: 'Minecraft';
-            src: url('https://db.onlinewebfonts.com/t/6ab539c6fc2b21ff0b149b3d06d7f97c.woff2') format('woff2');
+            src: url('minecraft.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
-        }
-
-        :root {
-            --color-bg: #1a1a1a;
-            --color-bg-panel: #222222;
-            --color-bg-element: #2a2a2a;
-            --color-bg-hover: #333333;
-            --color-border: #444444;
-            --color-border-light: #555555;
-            --color-text: #e0e0e0;
-            --color-text-muted: #888888;
-            --color-text-dim: #666666;
-            --color-purple: #bf49d6;
-            --color-purple-dark: #a248b4;
-            --color-success: #43b581;
-            --color-error: #f04747;
-            --color-gold: #ffaa00;
-            --color-gold-dark: #cc8800;
-            --pixel-shadow-dark: rgba(0, 0, 0, 0.45);
-            --pixel-highlight: rgba(255, 255, 255, 0.18);
-            --font-mc: 'Minecraft', 'Courier New', monospace;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
         }
 
         body {
-            font-family: var(--font-mc);
+            font-family: 'Minecraft', 'Courier New', monospace;
             background-color: transparent !important;
-            color: var(--color-text);
+            color: #ffffff;
             min-height: 100vh;
-            line-height: 1.5;
+            line-height: 1.4;
             -webkit-font-smoothing: none;
-            image-rendering: pixelated;
             overflow: hidden;
         }
 
@@ -59,28 +35,24 @@
             left: 30px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 10px;
             pointer-events: none;
             z-index: 9999;
         }
 
-        /* Minecraft-style panel */
         .donation-alert {
             position: relative;
-            width: 420px;
-            background: var(--color-bg-panel);
-            border: 3px solid var(--color-border);
-            box-shadow: 
-                inset 2px 2px 0 0 var(--pixel-highlight),
-                inset -2px -2px 0 0 var(--pixel-shadow-dark),
-                4px 4px 0 0 rgba(0, 0, 0, 0.3);
-            padding: 16px;
+            width: 400px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(4px);
+            padding: 16px 16px 16px 8px;
             transform: translateX(-100%);
             opacity: 0;
-            transition: all 0.4s steps(10);
+            transition: all 0.3s ease-out;
             pointer-events: none;
-            color: var(--color-text);
-            image-rendering: pixelated;
+            color: #ffffff;
+            border-left: 6px solid #1ab378;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
         }
 
         .donation-alert.show {
@@ -93,158 +65,91 @@
             opacity: 0;
         }
 
-        /* Header с аватаром и ником */
-        .alert-header {
+        /* Цветная полоска слева - меняет оттенок */
+        .donation-alert::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            background: inherit;
+            filter: brightness(1.2) saturate(1.5);
+        }
+
+        /* Контент */
+        .alert-content {
             display: flex;
-            align-items: flex-start;
+            flex-direction: column;
             gap: 12px;
-            margin-bottom: 12px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--color-border);
+        }
+
+        /* Верхняя строка: аватар + ник + сумма */
+        .alert-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .avatar-wrapper {
-            position: relative;
-            width: 48px;
-            height: 48px;
+            width: 56px;
+            height: 56px;
             flex-shrink: 0;
         }
 
         .minecraft-avatar {
-            width: 48px;
-            height: 48px;
-            border: 2px solid var(--color-border);
-            box-shadow: 
-                inset 1px 1px 0 0 var(--pixel-highlight),
-                inset -1px -1px 0 0 var(--pixel-shadow-dark);
+            width: 56px;
+            height: 56px;
             image-rendering: pixelated;
             display: block;
-            background: var(--color-bg-element);
-        }
-
-        .avatar-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.05) 0px,
-                rgba(0, 0, 0, 0.05) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
+            background: #2a2a2a;
         }
 
         .user-info {
             flex: 1;
             min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .username {
-            font-size: 18px;
-            font-weight: normal;
-            color: var(--color-text);
-            text-shadow: 2px 2px 0 var(--color-bg);
-            letter-spacing: 0.5px;
+            font-size: 16px;
+            color: #aaaaaa;
+            letter-spacing: 0.3px;
             word-break: break-word;
+            line-height: 1.3;
             margin-bottom: 4px;
-            text-transform: none;
-        }
-
-        .amount-wrapper {
-            display: flex;
-            align-items: baseline;
-            gap: 6px;
-            background: var(--color-bg);
-            padding: 4px 8px;
-            border: 2px solid var(--color-border);
-            box-shadow: inset 1px 1px 0 0 var(--pixel-shadow-dark);
-            display: inline-block;
         }
 
         .amount {
-            font-size: 20px;
-            color: var(--color-gold);
-            text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.3);
+            font-size: 26px;
+            color: #ffffff;
             letter-spacing: 0.5px;
+            word-break: break-word;
+            line-height: 1.2;
+            font-weight: normal;
         }
 
-        .currency {
-            font-size: 14px;
-            color: var(--color-gold-dark);
+        .amount small {
+            font-size: 16px;
+            color: #cccccc;
             margin-left: 4px;
         }
 
-        /* КОММЕНТАРИЙ - САМОЕ ГЛАВНОЕ */
+        /* Комментарий - без кавычек, просто текст */
         .comment {
             font-size: 16px;
-            color: var(--color-text);
-            background: var(--color-bg);
-            border: 2px solid var(--color-border);
-            box-shadow: 
-                inset 2px 2px 0 0 var(--pixel-shadow-dark),
-                inset -1px -1px 0 0 var(--pixel-highlight);
-            padding: 12px;
-            margin-top: 12px;
-            line-height: 1.4;
+            color: #ffffff;
+            line-height: 1.5;
             word-break: break-word;
-            min-height: 60px;
-            max-height: 150px;
-            overflow-y: auto;
-            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
-            font-style: normal;
-            letter-spacing: 0.3px;
+            padding-left: 4px;
+            opacity: 0.95;
+            letter-spacing: 0.2px;
         }
 
         .comment:empty {
             display: none;
-        }
-
-        .comment::before {
-            content: "❝";
-            font-size: 24px;
-            color: var(--color-purple);
-            margin-right: 6px;
-            opacity: 0.7;
-        }
-
-        .comment::after {
-            content: "❞";
-            font-size: 24px;
-            color: var(--color-purple);
-            margin-left: 6px;
-            opacity: 0.7;
-            vertical-align: top;
-        }
-
-        /* Прогресс-бар в стиле Minecraft */
-        .progress-bar {
-            position: absolute;
-            bottom: -3px;
-            left: -3px;
-            right: -3px;
-            height: 4px;
-            background: var(--color-bg);
-            border: 2px solid var(--color-border);
-            box-shadow: inset 0 0 0 1px var(--pixel-shadow-dark);
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: repeating-linear-gradient(
-                90deg,
-                var(--color-purple) 0px,
-                var(--color-purple) 6px,
-                var(--color-purple-dark) 6px,
-                var(--color-purple-dark) 12px
-            );
-            width: 100%;
-            transform-origin: left;
-            animation: shrink 10s linear forwards;
-            box-shadow: inset 0 1px 0 0 var(--pixel-highlight);
         }
 
         /* Позиционирование */
@@ -273,17 +178,18 @@
         }
 
         #donation-container.center .donation-alert {
-            transform: scale(0.9);
+            transform: translateX(-50%) scale(0.9);
             opacity: 0;
+            left: 50%;
         }
 
         #donation-container.center .donation-alert.show {
-            transform: scale(1);
+            transform: translateX(-50%) scale(1);
             opacity: 1;
         }
 
         #donation-container.center .donation-alert.hide {
-            transform: scale(0.9);
+            transform: translateX(-50%) scale(0.9);
             opacity: 0;
         }
 
@@ -293,56 +199,17 @@
             top: 10px;
             right: 10px;
             padding: 6px 10px;
-            font-family: var(--font-mc);
+            font-family: 'Minecraft', monospace;
             font-size: 12px;
-            background: var(--color-bg-panel);
-            color: var(--color-text);
-            border: 2px solid var(--color-border);
-            box-shadow: inset 1px 1px 0 0 var(--pixel-highlight);
+            background: rgba(10, 10, 10, 0.8);
+            color: #aaaaaa;
             pointer-events: none;
             z-index: 10000;
-            text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
         }
 
-        #connection-status.connected {
-            border-color: var(--color-success);
-            color: var(--color-success);
-        }
-
-        #connection-status.disconnected {
-            border-color: var(--color-error);
-            color: var(--color-error);
-        }
-
-        #connection-status.reconnecting {
-            border-color: var(--color-gold);
-            color: var(--color-gold);
-        }
-
-        /* Анимации */
-        @keyframes shrink {
-            from { transform: scaleX(1); }
-            to { transform: scaleX(0); }
-        }
-
-        /* Скроллбар */
-        .comment::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        .comment::-webkit-scrollbar-track {
-            background: var(--color-bg);
-            border: 1px solid var(--color-border);
-        }
-
-        .comment::-webkit-scrollbar-thumb {
-            background: var(--color-border-light);
-            border: 1px solid var(--color-border);
-        }
-
-        .comment::-webkit-scrollbar-thumb:hover {
-            background: var(--color-text-dim);
-        }
+        #connection-status.connected { color: #43b581; }
+        #connection-status.disconnected { color: #f04747; }
+        #connection-status.reconnecting { color: #ffaa00; }
     </style>
 </head>
 <body>
@@ -353,17 +220,22 @@
 
     <div id="donation-container" class="bottom-left"></div>
 
+    <!-- Звук Minecraft Level Up -->
+    <audio id="donation-sound" preload="auto">
+        <source src="https://minecraft.wiki/images/Random_levelup.ogg?3bb41&format=original" type="audio/ogg">
+    </audio>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
         (function() {
-            // Настройки из URL параметров
             const urlParams = new URLSearchParams(window.location.search);
             const config = {
                 position: urlParams.get('position') || 'bottom-left',
-                duration: parseInt(urlParams.get('duration')) || 10000,
+                duration: parseInt(urlParams.get('duration')) || 8000,
                 minAmount: parseInt(urlParams.get('minAmount')) || 0,
                 maxAlerts: parseInt(urlParams.get('maxAlerts')) || 5,
                 showStatus: urlParams.get('showStatus') !== 'false',
+                sound: urlParams.get('sound') !== 'false',
                 server: 'https://spmtv.onrender.com'
             };
             
@@ -379,12 +251,21 @@
             const container = document.getElementById('donation-container');
             const statusDiv = document.getElementById('connection-status');
             const statusText = document.getElementById('status-text');
-            const connectionCount = document.getElementById('connection-count');
+            const donationSound = document.getElementById('donation-sound');
             
             container.className = config.position;
             
             if (!config.showStatus) {
                 statusDiv.style.display = 'none';
+            }
+
+            // Генерация случайного оттенка зелёного (#1ab378 и рядом)
+            function getRandomGreenShade() {
+                const baseHue = 155; // Базовый оттенок #1ab378
+                const hue = baseHue + (Math.random() * 30 - 15); // ±15 градусов
+                const saturation = 60 + Math.random() * 30; // 60-90%
+                const lightness = 45 + Math.random() * 20; // 45-65%
+                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
             }
             
             // Загрузка аватара Minecraft
@@ -407,7 +288,7 @@
                             }
                         }
                     } catch (e) {
-                        console.warn('⚠️ Не удалось получить UUID:', e);
+                        console.warn('Не удалось получить UUID');
                     }
                     return 'https://mc-heads.net/avatar/MHF_Question/64';
                 }
@@ -423,14 +304,14 @@
                         });
                         return service.url;
                     } catch (error) {
-                        console.warn(`⚠️ Сервис ${service.name} недоступен`);
+                        console.warn(`Сервис ${service.name} недоступен`);
                     }
                 }
                 
                 return 'https://mc-heads.net/avatar/MHF_Question/64';
             }
             
-            // Форматирование суммы с тремя знаками после запятой
+            // Форматирование суммы
             function formatAmount(amount) {
                 return amount.toFixed(3);
             }
@@ -442,16 +323,32 @@
                 div.textContent = text;
                 return div.innerHTML;
             }
+
+            // Воспроизведение звука
+            function playSound() {
+                if (!config.sound) return;
+                try {
+                    donationSound.currentTime = 0;
+                    donationSound.volume = 0.7;
+                    donationSound.play().catch(e => console.log('Автовоспроизведение заблокировано'));
+                } catch (e) {
+                    console.warn('Не удалось воспроизвести звук');
+                }
+            }
             
             // Создание алерта
             async function createAlert(data) {
                 if (data.amount < config.minAmount) {
-                    console.log(`ℹ️ Донат ${data.amount} АР пропущен (мин: ${config.minAmount})`);
+                    console.log(`Донат ${data.amount} АР пропущен (мин: ${config.minAmount})`);
                     return false;
                 }
                 
                 const alertDiv = document.createElement('div');
                 alertDiv.className = 'donation-alert';
+                
+                // Случайный оттенок зелёного для полоски слева
+                const borderColor = getRandomGreenShade();
+                alertDiv.style.borderLeftColor = borderColor;
                 
                 const formattedAmount = formatAmount(data.amount);
                 const safeUsername = escapeHtml(data.username);
@@ -461,29 +358,29 @@
                 const avatarUrl = await loadMinecraftAvatar(data.username, data.uuid || null);
                 
                 alertDiv.innerHTML = `
-                    <div class="alert-header">
-                        <div class="avatar-wrapper">
-                            <img class="minecraft-avatar" src="${avatarUrl}" alt="${safeUsername}" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/64'">
-                            <div class="avatar-overlay"></div>
-                        </div>
-                        <div class="user-info">
-                            <div class="username">${safeUsername}</div>
-                            <div class="amount-wrapper">
-                                <span class="amount">${formattedAmount}</span>
-                                <span class="currency">АР</span>
+                    <div class="alert-content">
+                        <div class="alert-top">
+                            <div class="avatar-wrapper">
+                                <img class="minecraft-avatar" src="${avatarUrl}" alt="${safeUsername}" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/64'">
+                            </div>
+                            <div class="user-info">
+                                <div class="username">${safeUsername}</div>
+                                <div class="amount">${formattedAmount}<small>АР</small></div>
                             </div>
                         </div>
-                    </div>
-                    ${data.comment ? `<div class="comment">${safeComment}</div>` : ''}
-                    <div class="progress-bar">
-                        <div class="progress-fill"></div>
+                        ${data.comment ? `<div class="comment">${safeComment}</div>` : ''}
                     </div>
                 `;
                 
                 container.insertBefore(alertDiv, container.firstChild);
                 
+                // Воспроизводим звук
+                playSound();
+                
+                // Анимация появления
                 setTimeout(() => alertDiv.classList.add('show'), 10);
                 
+                // Автоматическое скрытие
                 setTimeout(() => {
                     alertDiv.classList.remove('show');
                     alertDiv.classList.add('hide');
@@ -492,9 +389,10 @@
                         if (alertDiv.parentNode) {
                             alertDiv.parentNode.removeChild(alertDiv);
                         }
-                    }, 400);
+                    }, 300);
                 }, config.duration);
                 
+                // Ограничиваем количество алертов
                 while (container.children.length > config.maxAlerts) {
                     const lastAlert = container.lastChild;
                     lastAlert.classList.remove('show');
@@ -503,7 +401,7 @@
                         if (lastAlert.parentNode) {
                             lastAlert.parentNode.removeChild(lastAlert);
                         }
-                    }, 400);
+                    }, 300);
                 }
                 
                 return true;
