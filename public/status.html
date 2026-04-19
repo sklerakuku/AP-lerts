@@ -11,7 +11,7 @@
         
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -20,18 +20,22 @@
         }
         
         .container {
-            background: white;
-            border-radius: 20px;
+            background: #2a2a3e;
+            border-radius: 16px;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            max-width: 700px;
             width: 100%;
+            border: 1px solid #3a3a5e;
         }
         
         h1 {
-            color: #333;
+            color: #ffffff;
             margin-bottom: 10px;
             font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         
         .status-badge {
@@ -40,13 +44,13 @@
             border-radius: 30px;
             font-weight: 600;
             margin-bottom: 30px;
-            background: #4CAF50;
+            background: #43b581;
             color: white;
         }
         
         .info-grid {
             display: grid;
-            gap: 15px;
+            gap: 12px;
             margin-bottom: 30px;
         }
         
@@ -54,64 +58,118 @@
             display: flex;
             justify-content: space-between;
             padding: 15px;
-            background: #f5f5f5;
-            border-radius: 10px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            border-left: 4px solid #1ab378;
         }
         
         .info-label {
             font-weight: 600;
-            color: #666;
+            color: #8888aa;
         }
         
         .info-value {
-            color: #333;
+            color: #ffffff;
             font-weight: 500;
         }
         
         .url-box {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 10px;
+            background: #1a1a2e;
+            padding: 20px;
+            border-radius: 8px;
             margin-bottom: 20px;
+            border: 1px solid #3a3a5e;
+        }
+        
+        .url-box strong {
+            color: #ffffff;
+            display: block;
+            margin-bottom: 10px;
         }
         
         .url-box code {
             display: block;
-            background: #333;
-            color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
+            background: #0a0a1e;
+            color: #1ab378;
+            padding: 12px;
+            border-radius: 6px;
             font-size: 14px;
             word-break: break-all;
+            font-family: 'Courier New', monospace;
+            border: 1px solid #2a2a4e;
         }
         
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1ab378;
             color: white;
             text-decoration: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
-            transition: transform 0.2s;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
         }
         
         .button:hover {
+            background: #15a068;
             transform: translateY(-2px);
+        }
+        
+        .button.secondary {
+            background: #3a3a5e;
+        }
+        
+        .button.secondary:hover {
+            background: #4a4a7e;
         }
         
         .refresh {
             text-align: center;
             margin-top: 20px;
-            color: #666;
+            color: #6666aa;
             font-size: 14px;
+        }
+        
+        .command-box {
+            background: #0a0a1e;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        
+        .command-box pre {
+            color: #1ab378;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: #3a3a5e;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .copy-btn:hover {
+            background: #4a4a7e;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🎮 SPMTV Donation Server</h1>
+        <h1>
+            <span>🎮</span>
+            <span>SPMTV Donation Server</span>
+        </h1>
         <div class="status-badge" id="status-badge">🟢 Онлайн</div>
         
         <div class="info-grid">
@@ -128,12 +186,12 @@
                 <span class="info-value" id="connections">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Время работы:</span>
-                <span class="info-value" id="uptime">-</span>
+                <span class="info-label">Card ID:</span>
+                <span class="info-value" id="card-id">-</span>
             </div>
             <div class="info-item">
-                <span class="info-label">Последнее обновление:</span>
-                <span class="info-value" id="last-update">-</span>
+                <span class="info-label">Время работы:</span>
+                <span class="info-value" id="uptime">-</span>
             </div>
         </div>
         
@@ -143,21 +201,32 @@
         </div>
         
         <div class="url-box">
-            <strong>🎬 URL для OBS:</strong>
-            <code>https://spmtv.onrender.com?position=bottom-left&duration=10000</code>
+            <strong>🎬 URL для OBS (Minecraft стиль):</strong>
+            <code>https://spmtv.onrender.com?position=bottom-left&duration=8000&minAmount=10</code>
         </div>
         
-        <div style="text-align: center; margin-top: 20px;">
+        <div class="url-box">
+            <strong>🔐 Команда для настройки вебхука:</strong>
+            <div class="command-box">
+                <pre id="curl-command">Загрузка...</pre>
+                <button class="copy-btn" onclick="copyCommand()">📋 Копировать команду</button>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
             <a href="/" class="button">📺 Открыть виджет</a>
-            <a href="/test-donation?key=test123" class="button" style="margin-left: 10px;">🧪 Тестовый донат</a>
+            <a href="/test-donation?key=test123" class="button secondary">🧪 Тестовый донат</a>
+            <button onclick="location.reload()" class="button secondary">🔄 Обновить</button>
         </div>
         
         <div class="refresh">
-            Страница обновляется автоматически каждые 30 секунд
+            Автообновление каждые 30 секунд
         </div>
     </div>
     
     <script>
+        let currentCommand = '';
+        
         async function updateStatus() {
             try {
                 const response = await fetch('/status');
@@ -165,15 +234,41 @@
                 
                 document.getElementById('server-status').textContent = data.status === 'online' ? '🟢 Онлайн' : '🔴 Офлайн';
                 document.getElementById('connections').textContent = data.connections;
+                document.getElementById('card-id').textContent = data.cardId || '***';
                 document.getElementById('uptime').textContent = Math.floor(data.uptime / 60) + ' мин';
-                document.getElementById('last-update').textContent = new Date(data.timestamp).toLocaleString('ru-RU');
             } catch (error) {
                 console.error('Ошибка получения статуса:', error);
                 document.getElementById('server-status').textContent = '❌ Ошибка';
             }
         }
         
+        async function loadAuthToken() {
+            try {
+                const response = await fetch('/get-auth-token?key=admin123');
+                const data = await response.json();
+                
+                if (data.webhookSetupCommand) {
+                    currentCommand = data.webhookSetupCommand;
+                    document.getElementById('curl-command').textContent = currentCommand;
+                }
+            } catch (error) {
+                console.error('Ошибка получения токена:', error);
+                document.getElementById('curl-command').textContent = 'Ошибка загрузки токена';
+            }
+        }
+        
+        function copyCommand() {
+            if (currentCommand) {
+                navigator.clipboard.writeText(currentCommand).then(() => {
+                    alert('✅ Команда скопирована в буфер обмена!');
+                }).catch(err => {
+                    alert('❌ Не удалось скопировать: ' + err);
+                });
+            }
+        }
+        
         updateStatus();
+        loadAuthToken();
         setInterval(updateStatus, 30000);
     </script>
 </body>

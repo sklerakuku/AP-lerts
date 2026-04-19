@@ -11,21 +11,35 @@ const io = new Server(server, {
         origin: "*",
         methods: ["GET", "POST"]
     },
-    // Настройки для Render
     pingTimeout: 60000,
     pingInterval: 25000,
     transports: ['websocket', 'polling']
 });
 
 const PORT = process.env.PORT || 3000;
-const CARD_API_TOKEN = process.env.CARD_API_TOKEN; // Из переменных среды
 
-// Проверка наличия токена при запуске
-if (!CARD_API_TOKEN) {
-    console.error('❌ ОШИБКА: Не указан CARD_API_TOKEN в переменных окружения!');
-    console.error('Добавьте переменную CARD_API_TOKEN в настройках Render');
+// Переменные из окружения Render
+const SP_CARD_ID = process.env.SP_CARD_ID;
+const SP_CARD_TOKEN = process.env.SP_CARD_TOKEN;
+
+// Проверка наличия переменных при запуске
+if (!SP_CARD_ID) {
+    console.error('❌ ОШИБКА: Не указан SP_CARD_ID в переменных окружения!');
     process.exit(1);
 }
+
+if (!SP_CARD_TOKEN) {
+    console.error('❌ ОШИБКА: Не указан SP_CARD_TOKEN в переменных окружения!');
+    process.exit(1);
+}
+
+// Генерируем Basic Auth токен: base64("ID:TOKEN")
+const BASIC_AUTH_TOKEN = Buffer.from(`${SP_CARD_ID}:${SP_CARD_TOKEN}`).toString('base64');
+
+console.log('🔐 Конфигурация загружена:');
+console.log(`   Card ID: ${SP_CARD_ID.substring(0, 8)}...`);
+console.log(`   Token: ${SP_CARD_TOKEN.substring(0, 8)}...`);
+console.log(`   Basic Auth: ${BASIC_AUTH_TOKEN.substring(0, 20)}...`);
 
 // Для корректного парсинга raw body
 app.use(express.json({
@@ -39,6 +53,11 @@ app.use(express.static('public'));
 
 // Главная страница с информацией
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Страница статуса
+app.get('/status-page', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'status.html'));
 });
 
@@ -49,13 +68,13 @@ app.get('/status', (req, res) => {
         timestamp: new Date().toISOString(),
         connections: io.engine.clientsCount,
         uptime: process.uptime(),
-        hosting: 'spmtv.onrender.com'
+        hosting: 'spmtv.onrender.com',
+        cardId: SP_CARD_ID.substring(0, 8) + '...'
     });
 });
 
-// Тестовый эндпоинт (только для отладки)
+// Тестовый эндпоинт
 app.get('/test-donation', (req, res) => {
-    // Простая защита тестового режима
     const testKey = req.query.key;
     if (testKey !== 'test123') {
         return res.status(403).json({ error: 'Unauthorized' });
@@ -73,12 +92,27 @@ app.get('/test-donation', (req, res) => {
     res.json({ success: true, message: 'Тестовый донат отправлен' });
 });
 
+// Эндпоинт для получения Basic Auth токена (для настройки вебхука)
+app.get('/get-auth-token', (req, res) => {
+    // Простая защита
+    const authKey = req.query.key;
+    if (authKey !== 'admin123') {
+        return res.status(403).json({ error: 'Unauthorized' });
+    }
+    
+    res.json({
+        cardId: SP_CARD_ID,
+        basicAuthToken: BASIC_AUTH_TOKEN,
+        usage: 'Используйте этот токен в заголовке Authorization: Basic ' + BASIC_AUTH_TOKEN,
+        webhookSetupCommand: `curl -X PUT https://spworlds.ru/api/public/card/webhook -H "Authorization: Basic ${BASIC_AUTH_TOKEN}" -H "Content-Type: application/json" -d '{"url": "https://spmtv.onrender.com/webhook"}'`
+    });
+});
+
 // Обработка вебхука от SPWorlds
 app.post('/webhook', (req, res) => {
     const rawBody = req.rawBody;
     const signature = req.headers['x-body-hash'];
     
-    // Логируем входящий запрос
     console.log(`📨 [${new Date().toISOString()}] Получен вебхук`);
     
     // Проверка наличия подписи
@@ -87,9 +121,9 @@ app.post('/webhook', (req, res) => {
         return res.status(400).json({ error: 'Missing signature header' });
     }
     
-    // Генерируем хеш для проверки
+    // Генерируем хеш для проверки (используем SP_CARD_TOKEN как ключ)
     const hash = crypto
-        .createHmac('sha256', CARD_API_TOKEN)
+        .createHmac('sha256', SP_CARD_TOKEN)
         .update(Buffer.from(rawBody, 'utf8'))
         .digest('base64');
     
@@ -105,14 +139,13 @@ app.post('/webhook', (req, res) => {
     try {
         const { amount, type, sender, receiver, comment, createdAt, id } = req.body;
         
-        // Подробное логирование
         console.log(`✅ Транзакция ${id}:`);
-        console.log(`   Сумма: ${amount} АР`);
-        console.log(`   Тип: ${type}`);
-        console.log(`   Отправитель: ${sender?.username || 'Неизвестный'}`);
-        console.log(`   Получатель: ${receiver?.username || 'Неизвестный'}`);
-        console.log(`   Комментарий: ${comment || 'Нет'}`);
-        console.log(`   Дата: ${createdAt}`);
+        console.log(`   💰 Сумма: ${amount} АР`);
+        console.log(`   📝 Тип: ${type}`);
+        console.log(`   👤 Отправитель: ${sender?.username || 'Неизвестный'}`);
+        console.log(`   👥 Получатель: ${receiver?.username || 'Неизвестный'}`);
+        console.log(`   💬 Комментарий: ${comment || 'Нет'}`);
+        console.log(`   📅 Дата: ${createdAt}`);
         
         // Формируем данные для отправки в виджет
         const donationData = {
@@ -153,7 +186,6 @@ io.on('connection', (socket) => {
     console.log(`   IP: ${clientIp}`);
     console.log(`   Всего подключений: ${io.engine.clientsCount}`);
     
-    // Отправляем приветственное сообщение
     socket.emit('welcome', {
         message: 'Подключено к серверу донатов SPWorlds',
         server: 'spmtv.onrender.com',
@@ -171,7 +203,6 @@ io.on('connection', (socket) => {
         console.error(`❌ Ошибка сокета ${socket.id}:`, error);
     });
     
-    // Пинг для поддержания соединения на Render
     socket.on('ping', () => {
         socket.emit('pong', { timestamp: Date.now() });
     });
@@ -185,7 +216,14 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log(`📡 Webhook URL: https://spmtv.onrender.com/webhook`);
     console.log(`🎮 Виджет: https://spmtv.onrender.com`);
     console.log(`📊 Статус: https://spmtv.onrender.com/status`);
-    console.log(`🔑 Токен: ${CARD_API_TOKEN ? 'Загружен ✅' : '❌ ОТСУТСТВУЕТ'}`);
+    console.log(`🔑 Card ID: ${SP_CARD_ID.substring(0, 8)}...`);
+    console.log(`🔐 Basic Auth Token сгенерирован`);
+    console.log('');
+    console.log('📋 Команда для настройки вебхука:');
+    console.log(`curl -X PUT https://spworlds.ru/api/public/card/webhook \\`);
+    console.log(`  -H "Authorization: Basic ${BASIC_AUTH_TOKEN}" \\`);
+    console.log(`  -H "Content-Type: application/json" \\`);
+    console.log(`  -d '{"url": "https://spmtv.onrender.com/webhook"}'`);
     console.log('🚀 ====================================');
 });
 

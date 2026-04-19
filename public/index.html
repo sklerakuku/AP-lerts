@@ -7,7 +7,7 @@
     <style>
         @font-face {
             font-family: 'Minecraft';
-            src: url('minecraft.ttf') format('truetype');
+            src: url('/minecraft.ttf') format('truetype');
             font-weight: normal;
             font-style: normal;
             font-display: swap;
@@ -44,7 +44,6 @@
             position: relative;
             width: 400px;
             background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(4px);
             padding: 16px 16px 16px 8px;
             transform: translateX(-100%);
             opacity: 0;
@@ -95,6 +94,7 @@
             width: 56px;
             height: 56px;
             flex-shrink: 0;
+            background: #2a2a2a;
         }
 
         .minecraft-avatar {
@@ -102,7 +102,7 @@
             height: 56px;
             image-rendering: pixelated;
             display: block;
-            background: #2a2a2a;
+            object-fit: cover;
         }
 
         .user-info {
@@ -236,6 +236,7 @@
                 maxAlerts: parseInt(urlParams.get('maxAlerts')) || 5,
                 showStatus: urlParams.get('showStatus') !== 'false',
                 sound: urlParams.get('sound') !== 'false',
+                avatarSize: parseInt(urlParams.get('avatarSize')) || 64,
                 server: 'https://spmtv.onrender.com'
             };
             
@@ -268,47 +269,78 @@
                 return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
             }
             
-            // Загрузка аватара Minecraft
-            async function loadMinecraftAvatar(username, uuid) {
-                const cleanUuid = uuid ? uuid.replace(/-/g, '') : null;
+            // Загрузка аватара через SPWorlds API
+            // Формат: https://avatars.spworlds.ru/face/{username}?w={size}
+            // или с UUID: https://avatars.spworlds.ru/face/{uuid}?w={size}
+            async function loadAvatar(username, uuid, size = 64) {
+                // Если есть UUID, используем его (предпочтительнее)
+                if (uuid) {
+                    const cleanUuid = uuid.replace(/-/g, '');
+                    return `https://avatars.spworlds.ru/face/${cleanUuid}?w=${size}`;
+                }
                 
-                const services = [
-                    { url: cleanUuid ? `https://mc-heads.net/avatar/${cleanUuid}/64` : null, name: 'MC-Heads' },
-                    { url: cleanUuid ? `https://minotar.net/avatar/${cleanUuid}/64` : null, name: 'Minotar' },
-                    { url: cleanUuid ? `https://crafatar.com/avatars/${cleanUuid}?size=64&overlay` : null, name: 'Crafatar' }
-                ].filter(s => s.url !== null);
-                
-                if (!cleanUuid) {
-                    try {
-                        const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
-                        if (mojangRes.ok) {
-                            const mojangData = await mojangRes.json();
-                            if (mojangData.id) {
-                                return await loadMinecraftAvatar(username, mojangData.id);
-                            }
+                // Если UUID нет, пробуем получить через Mojang API
+                try {
+                    const mojangRes = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+                    if (mojangRes.ok) {
+                        const mojangData = await mojangRes.json();
+                        if (mojangData.id) {
+                            return `https://avatars.spworlds.ru/face/${mojangData.id}?w=${size}`;
                         }
-                    } catch (e) {
-                        console.warn('Не удалось получить UUID');
                     }
-                    return 'https://mc-heads.net/avatar/MHF_Question/64';
+                } catch (e) {
+                    console.warn('Не удалось получить UUID через Mojang API:', e);
                 }
                 
-                for (const service of services) {
-                    try {
-                        await new Promise((resolve, reject) => {
-                            const img = new Image();
-                            img.onload = () => resolve();
-                            img.onerror = () => reject();
-                            img.src = service.url;
-                            setTimeout(() => reject(new Error('Timeout')), 3000);
-                        });
-                        return service.url;
-                    } catch (error) {
-                        console.warn(`Сервис ${service.name} недоступен`);
-                    }
+                // Fallback: используем никнейм напрямую
+                return `https://avatars.spworlds.ru/face/${username}?w=${size}`;
+            }
+            
+            // Проверка доступности аватара
+            async function checkAvatarUrl(url) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    img.onload = () => resolve(url);
+                    img.onerror = () => resolve(null);
+                    img.src = url;
+                    setTimeout(() => resolve(null), 3000);
+                });
+            }
+            
+            // Основная функция загрузки аватара с fallback
+            async function getAvatarUrl(username, uuid, size = 64) {
+                // Пробуем основной URL
+                const primaryUrl = await loadAvatar(username, uuid, size);
+                const checkedUrl = await checkAvatarUrl(primaryUrl);
+                
+                if (checkedUrl) {
+                    return checkedUrl;
                 }
                 
-                return 'https://mc-heads.net/avatar/MHF_Question/64';
+                // Fallback 1: mc-heads.net с UUID
+                if (uuid) {
+                    const cleanUuid = uuid.replace(/-/g, '');
+                    const mcHeadsUrl = `https://mc-heads.net/avatar/${cleanUuid}/${size}`;
+                    const mcHeadsCheck = await checkAvatarUrl(mcHeadsUrl);
+                    if (mcHeadsCheck) return mcHeadsCheck;
+                }
+                
+                // Fallback 2: minotar.net
+                const minotarUrl = uuid 
+                    ? `https://minotar.net/avatar/${uuid.replace(/-/g, '')}/${size}`
+                    : `https://minotar.net/avatar/${username}/${size}`;
+                const minotarCheck = await checkAvatarUrl(minotarUrl);
+                if (minotarCheck) return minotarCheck;
+                
+                // Fallback 3: crafatar.com
+                if (uuid) {
+                    const crafatarUrl = `https://crafatar.com/avatars/${uuid}?size=${size}&overlay`;
+                    const crafatarCheck = await checkAvatarUrl(crafatarUrl);
+                    if (crafatarCheck) return crafatarCheck;
+                }
+                
+                // Абсолютный fallback: стандартный аватар
+                return `https://mc-heads.net/avatar/MHF_Question/${size}`;
             }
             
             // Форматирование суммы
@@ -354,14 +386,14 @@
                 const safeUsername = escapeHtml(data.username);
                 const safeComment = escapeHtml(data.comment);
                 
-                // Загружаем аватар
-                const avatarUrl = await loadMinecraftAvatar(data.username, data.uuid || null);
+                // Загружаем аватар через SPWorlds API
+                const avatarUrl = await getAvatarUrl(data.username, data.uuid || null, config.avatarSize);
                 
                 alertDiv.innerHTML = `
                     <div class="alert-content">
                         <div class="alert-top">
                             <div class="avatar-wrapper">
-                                <img class="minecraft-avatar" src="${avatarUrl}" alt="${safeUsername}" onerror="this.src='https://mc-heads.net/avatar/MHF_Question/64'">
+                                <img class="minecraft-avatar" src="${avatarUrl}" alt="${safeUsername}" onerror="this.src='https://avatars.spworlds.ru/face/MHF_Question?w=${config.avatarSize}'">
                             </div>
                             <div class="user-info">
                                 <div class="username">${safeUsername}</div>
@@ -463,6 +495,7 @@
             };
             
             console.log('🎮 AP-lerts Minecraft Edition загружен');
+            console.log('🖼️ Аватары через SPWorlds API');
             console.log('💡 Тест: testDonation(сумма, "ник")');
         })();
     </script>
