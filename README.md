@@ -31,18 +31,36 @@
   <img width="120" height="72" alt="Тишина, Алекс" src="https://minecraft.wiki/images/thumb/Silence%2C_Alex.gif/120px-Silence%2C_Alex.gif?13a63" />
   <img width="120" height="72" alt="Зомби гонится за козой" src="https://minecraft.wiki/images/thumb/Zombie_chases_goat.gif/120px-Zombie_chases_goat.gif?63b79" />
 </p>
-## 🔊 Звуки
 
-| Название | Прослушать |
-|----------|------------|
-| Firework Twinkle | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Firework_twinkle_far.ogg" type="audio/ogg"></audio> |
-| Sad | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Sad1.ogg" type="audio/ogg"></audio> |
-| Hurt Old | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Hurt_Old.ogg?16921&format=original" type="audio/ogg"></audio> |
-| Level Up | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Random_levelup.ogg?3bb41&format=original" type="audio/ogg"></audio> |
-| Challenge Complete | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Challenge_complete.ogg?89047&format=original" type="audio/ogg"></audio> |
-| Wrong | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/In.ogg?25988&format=original" type="audio/ogg"></audio> |
-| Letter (Thorns1) | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Thorns1.ogg" type="audio/ogg"></audio> |
-| Bubble | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Hud_bubble.wav?138a5&format=original" type="audio/wav"></audio> |
-| Thorns 1 | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Thorns1.ogg" type="audio/ogg"></audio> |
-| Thorns 2 | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Thorns2.ogg" type="audio/ogg"></audio> |
-| Thorns 3 | <audio controls preload="none" style="width: 200px;"><source src="https://minecraft.wiki/images/Thorns3.ogg" type="audio/ogg"></audio> |
+## Звуки
+
+### Звуки неудачи
+
+| Название | Ссылка |
+|----------|--------|
+| Firework Twinkle | [🔊 Слушать](https://minecraft.wiki/images/Firework_twinkle_far.ogg) |
+| Sad | [🔊 Слушать](https://minecraft.wiki/images/Sad1.ogg) |
+| Hurt Old | [🔊 Слушать](https://minecraft.wiki/images/Hurt_Old.ogg?16921&format=original) |
+
+### Звуки успеха
+
+| Название | Ссылка |
+|----------|--------|
+| Level Up | [🔊 Слушать](https://minecraft.wiki/images/Random_levelup.ogg?3bb41&format=original) |
+| Challenge Complete | [🔊 Слушать](https://minecraft.wiki/images/Challenge_complete.ogg?89047&format=original) |
+
+### Эффекты
+
+| Название | Ссылка |
+|----------|--------|
+| Wrong | [🔊 Слушать](https://minecraft.wiki/images/In.ogg?25988&format=original) |
+| Letter (Thorns1) | [🔊 Слушать](https://minecraft.wiki/images/Thorns1.ogg) |
+| Bubble | [🔊 Слушать](https://minecraft.wiki/images/Hud_bubble.wav?138a5&format=original) |
+
+### Thorns
+
+| Название | Ссылка |
+|----------|--------|
+| Thorns 1 | [🔊 Слушать](https://minecraft.wiki/images/Thorns1.ogg) |
+| Thorns 2 | [🔊 Слушать](https://minecraft.wiki/images/Thorns2.ogg) |
+| Thorns 3 | [🔊 Слушать](https://minecraft.wiki/images/Thorns3.ogg) |
